@@ -1,0 +1,624 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load static %}
+<html lang="en" >
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+
+
+
+    <title>Kawsar File System</title>
+    <link href="{% static '/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/style.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/AdminLTE.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/_all-skins.min.css' %}"  rel="stylesheet" type="text/css" />
+
+    <script src="{% static '/js/jquery-2.2.3.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static '/js/pagination.js' %}"></script>
+
+
+
+	<script type="text/javascript">
+
+		var legou=angular.module("uytable",['pagination']).config(function($interpolateProvider) {
+        $interpolateProvider.startSymbol('{$');
+        $interpolateProvider.endSymbol('$}');
+
+        });
+
+
+ 		legou.controller("MkTableController",function ($scope,$http) {
+
+
+
+			$scope.paginationConf = {
+ 				currentPage: 1,
+ 				totalItems: 10,
+ 				itemsPerPage: 10,
+ 				perPageOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+ 				onChange: function(){
+					$scope.findAllDataBases();
+				}
+			};
+
+
+			$scope.typeTemplateList=[];
+
+
+ 			$scope.addSpecificationOptionList = function(){
+
+
+				$scope.entity.tbSpecificationOptionList.push({});
+			};
+
+
+			$scope.deleSpecificationOptionList = function(index,optionName,yuanName,typeId){
+
+
+				if (typeof optionName === 'undefined' ||typeof yuanName === 'undefined') {
+
+					$scope.entity.tbSpecificationOptionList.splice(index,1);
+
+					return;
+
+				}
+
+				  $scope.asySave(optionName,yuanName,typeId,index)
+
+
+			}
+
+
+
+
+			$scope.save=function () {
+
+				var val=$scope.getDataName();
+				$scope.entity.tbSpecification.dataBaseName=val;
+
+
+
+
+				var textStr=$scope.entity.tbSpecification.specName;
+				var judgeFn = new RegExp(/\s+/g);
+				if (judgeFn.test(textStr)) {
+
+					$scope.entity=[];
+					return;
+				}
+				if (typeof textStr === 'undefined') {
+
+					$scope.entity=[];
+					return;
+				}
+
+				if (/.*[\u4e00-\u9fa5]+.*$/.test(textStr)) {
+
+					$scope.entity=[];
+					return;
+				}
+
+
+
+				var f=false;
+
+				for (let i = 0; i <$scope.entity.tbSpecificationOptionList.length ; i++) {
+
+					console.log("key-val",$scope.entity.tbSpecificationOptionList[i]);
+					if ($scope.entity.tbSpecificationOptionList[i].optionName ==="id"){
+						f=true;
+                        return;
+					}
+
+				}
+				if (f){
+					return;
+				}
+
+				var arr1=[];
+
+				for (var i=0; i<$scope.entity.tbSpecificationOptionList.length; i++) {
+
+					if ($scope.entity.tbSpecificationOptionList.length[i]!=0) {
+
+						arr1[arr1.length] = $scope.entity.tbSpecificationOptionList[i].optionName;
+
+					}
+				}
+				console.log("----------",arr1);
+				var hasDuplicate = false;
+				for (var i = 0; i < arr1.length - 1; i++) {
+					for (var j = i + 1; j < arr1.length; j++) {
+						if (arr1[i] === (arr1[j])) {
+							hasDuplicate = true;
+							break;
+						}
+					}
+					if (hasDuplicate) {
+						break;
+					}
+				}
+				if (hasDuplicate){
+					return;
+				}
+
+
+
+				var method="save";
+
+
+				if($scope.entity.id != 1){
+
+
+
+					method="update";
+
+				}
+
+
+				$http.post("/MkTabel01"+method,$scope.entity).success(function (resp) {
+
+
+					$scope.entity=[];
+					$scope.findAllDataBases();
+
+
+
+				})
+
+			}
+
+
+			$scope.findOne=function (id) {
+
+				var dataName=$scope.getDataName();
+
+
+
+				$http.get("/finOne01/"+id+"/"+dataName).success(function (resp) {
+
+
+					$scope.entity =resp;
+					$scope.entity.filename=resp.filename;
+					$scope.entity.filename2=resp.filename2;
+					$scope.entity.yyname=resp.filename;
+
+				})
+
+
+			}
+
+			$scope.selectIds=[];
+			$scope.updateSelection=function (e,id) {
+
+
+
+				if(e.target.checked){
+					$scope.selectIds.push(id);
+
+				}else {
+
+					var index = getArrayIndex($scope.selectIds,id);
+                    $scope.selectIds.splice(index,1);
+
+
+				}
+
+
+			}
+
+
+			 $scope.getDataName=function (){
+				 var val= document.getElementById("nameVal").value;
+
+				 return val;
+
+			 }
+
+			$scope.findAllDataBases=function (){
+
+				var dataName=$scope.getDataName();
+				$scope.dataName=dataName;
+
+				$http.get("/findAllDataBases02/"+$scope.paginationConf.currentPage+"/"+$scope.paginationConf.itemsPerPage+"/"+$scope.dataName).success(function (resp) {
+
+
+					$scope.paginationConf.totalItems = resp.total;
+ 					$scope.listsss = resp.data;
+
+
+
+
+				})
+
+
+			}
+
+
+			$scope.dele=function () {
+
+				if ($scope.selectIds.length==0){
+
+
+					alert("Choose at least one");
+					return;
+				}
+
+				var dataName=$scope.getDataName();
+				$scope.dataName=dataName;
+
+
+				//询问是否真正删除
+				if(window.confirm("Are you sure you want to delete?")) {
+
+					$http.get("/del02/"+$scope.selectIds+"/"+$scope.dataName).success(function (resp) {
+
+						$scope.findAllDataBases();
+
+						$scope.selectIds=[];
+
+					})
+
+				}
+			}
+
+			function getArrayIndex(arr,obj) {
+				for (var i in arr){
+
+					if (arr[i]==obj){
+						return i;
+					}
+				}
+			}
+
+			$scope.clickAll = function(e){
+
+				if(e.target.checked==true){
+
+					var checkOnes=document.getElementsByName("checkOnes");
+					$scope.selectIds=[];
+
+					for (var i=0;i<checkOnes.length;i++){
+
+						if(checkOnes[i].checked==false){
+							$scope.selectIds.push(checkOnes[i].value);
+							checkOnes[i].checked=true;
+						}else {
+							var index2=getArrayIndex($scope.selectIds,checkOnes[i].value)
+
+							$scope.selectIds.splice(index2,1);
+							checkOnes[i].checked=false;
+						}
+
+					}
+
+
+				}else{
+					var checkOnes=document.getElementsByName("checkOnes");
+
+					for (var i=0;i<checkOnes.length;i++){
+
+						if (checkOnes[i].checked==true){
+
+							checkOnes[i].checked=false
+ 							var index =getArrayIndex($scope.selectIds,checkOnes[i].value);
+							$scope.selectIds.splice(index,1)
+						}else {
+							$scope.selectIds.push(checkOnes[i].value);
+							checkOnes[i].checked=true;
+						}
+
+
+					}
+
+
+				}
+			};
+
+
+			$scope.asySave=function (filename,yyname,filename2){
+				var dataName=$scope.getDataName();
+
+ 				$http.get("/file_name_update/"+filename+"/"+yyname+"/"+filename2+"/"+dataName).success(function (resp) {
+
+					$scope.entity=[];
+					$scope.findAllDataBases();
+
+				})
+
+
+
+			}
+
+
+
+		})
+
+
+
+	</script>
+
+
+ <script type="text/javascript">
+
+	 var realval=0;
+
+
+	 function progressHandle(e) {
+		 $('#progress-body1 progress').attr({
+			 value : e.loaded,
+			 max : e.total
+		 });
+		 var percent = (e.loaded / e.total * 100).toFixed(2);
+		 $('#progress-body1 #progress-bar1').html(percent + "%");
+	 };
+
+
+	 function uploadSuccess(e) {
+
+ 		 $('#id2').html($("#file")[0].files[0].name+" : "+"Upload successful");
+		 setTimeout(function() {
+			 location.reload();
+		 }, 400);
+
+	 };
+
+	 function uploadFail(e) {
+
+	 };
+
+
+
+	 // File Upload
+	 function upload() {
+
+		 var dataName=$("#nameVal").val()
+
+ 		 var formData = new FormData();
+		 formData.append("dataName", dataName);
+		 formData.append("file", $("#file")[0].files[0]);
+		 $.ajax({
+			 url : "/upload/",
+			 type : "POST",
+			 data : formData,
+			 processData : false, //
+			 contentType : false, //
+			 success : function(data) {
+				 console.log(data);
+			 },
+			 xhr : function() {
+				 $('#id2').html("");
+				 var xhr = $.ajaxSettings.xhr();
+
+				 if (xhr.upload) {
+
+					 xhr.upload.addEventListener("progress", progressHandle,
+							 false);
+
+					 xhr.addEventListener("load", uploadSuccess, false);
+
+					 xhr.addEventListener("error", uploadFail, false);
+					 return xhr;
+				 }
+			 }
+		 });
+	 }
+
+
+
+	 function download(atttt) {
+
+		 var dataName=$("#nameVal").val()
+
+		 realval=atttt.id;
+ 		 var xhr = new XMLHttpRequest();
+
+		 xhr.addEventListener("progress", DprogressHandle, false);
+
+		 xhr.addEventListener("error", DuploadFail, false);
+		 xhr.open("POST","/download/");
+		 const person = {"name":realval,"dataName":dataName}
+		 xhr.send(JSON.stringify(person))
+
+
+		 xhr.responseType = 'blob';
+		 xhr.onload = function (e) {
+			 if (this.status === 200) {
+
+				 var filename = xhr.getResponseHeader("Content-disposition").slice(20);
+				 var blob = this.response;
+				 var a = document.createElement('a');
+				 var url = URL.createObjectURL(blob);
+				 a.href = url;
+				 a.download = filename;
+				 document.body.appendChild(a);
+				 a.click();
+				 window.URL.revokeObjectURL(url);
+			 }
+		 }
+		 xhr.send();
+	 }
+
+
+	 function DprogressHandle(e) {
+
+
+		    $("div[name=ffname]").each(function(){
+
+				if ($(this).attr("id") === realval){
+
+
+					$(this).children().first().attr({
+						value: e.loaded,
+						max: e.total
+					});
+
+					var percent = (e.loaded / e.total * 100).toFixed(2);
+					$(this).children(':eq(1)').html(percent + "%");
+
+				}
+ 		 });
+
+
+	 };
+
+
+	 function DuploadFail(e) {
+
+	 };
+
+
+
+ </script>
+
+
+</head>
+
+
+<body class="hold-transition skin-red sidebar-mini" ng-app="uytable" ng-controller="MkTableController" ng-init="findAllDataBases()" >
+<!-- .box-body -->
+<div class="box-header with-border">
+	<h3 class="box-title">Current Folder :</h3>
+	<h3 class="box-title" >{{ DataName }}</h3>
+	<input id="nameVal" type="hidden" value="{{ DataName }}">
+</div>
+
+<div class="box-body">
+
+	<div class="table-box">
+
+
+		<div class="pull-left">
+			<div class="form-group form-inline">
+				<div class="btn-group">
+					<button type="button" class="btn btn-default" title="Remove" ng-click="dele()" ><i class="fa fa-trash-o"></i> Remove</button>
+
+					<button type="button" class="btn btn-default" title="Reload" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Reload</button>
+					<button type="button" class="btn btn-default" title="Go Back" onclick="window.history.go(-1);"><i class="fa fa-refresh"></i> Go Back</button>
+
+
+				</div>
+
+				<div class="modal-body form ">
+
+					<form id="dialogForm1" class="form-horizontal">
+						<div class="form-group">
+							<div >
+								<input type="file" name="file" id="file" onchange="upload()">
+							</div>
+							<label class="control-label">Upload Progress:</label>
+							<div >
+
+								<div id="progress-body1">
+									<progress></progress>
+									<div id="progress-bar1">0%</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+
+							<div id="id2"></div>
+
+						</div>
+					</form>
+
+				</div>
+			</div>
+		</div>
+
+
+		<table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+			<thead>
+			<tr>
+				<th class="" style="padding-right:0px">
+					<input id="selall" type="checkbox" ng-click="clickAll($event)" class="icheckbox_square-blue">
+				</th>
+				<th class="sorting_asc">File Name</th>
+				<th class="sorting_asc">Size</th>
+				<th class="sorting_asc">Time</th>
+
+				<th class="text-center">Handle</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr ng-repeat="pojo in listsss">
+				<td><input ng-click="updateSelection($event,pojo.fileName)" name="checkOnes" ng-value="pojo.fileName"  type="checkbox" ng-checked="selectIds.includes(pojo.fileName)"></td>
+				<td ng-bind="pojo.fileName"></td>
+				<td ng-bind="pojo.size"></td>
+				<td ng-bind="pojo.date"></td>
+
+
+				<td class="text-center">
+					<form id="dialogForm" class="form-horizontal">
+						<div class="form-group">
+
+
+							<label class="control-label">Download Progress:
+							</label>
+
+							<div>
+
+
+								<div name="ffname" id="{$ pojo.fileName $}">
+									<progress></progress>
+									<div id="progress-bar">0%</div>
+								</div>
+							</div>
+							<button type="button" class="btn bg-olive btn-xs" ng-click="findOne(pojo.fileName)" data-toggle="modal" data-target="#editModa2">Edit File Name</button>
+							<button type="button" id="{$ pojo.fileName $}"  onclick="download(this)">Download</button>
+
+						</div>
+
+					</form>
+
+
+				</td>
+			</tr>
+
+			</tbody>
+		</table>
+
+		<tm-pagination conf="paginationConf" />
+	</div>
+
+</div>
+
+
+<div class="modal fade" id="editModa2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog" >
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h3 id="myModalLabel">File Name Editing</h3>
+				<h3  style="font-size:16px;color: red">The file name cannot be the same or have empty characters. If there are any, the file name will not be modified by default!</h3>
+
+			</div>
+			<div class="modal-body">
+
+				<table class="table table-bordered table-striped"  width="800px">
+					<tr>
+						<td style="padding-top: 16px;width: 95px">File Name:</td>
+						<td><input  class="form-control" ng-model="entity.filename" placeholder="File Name" >  </td>
+					</tr>
+				</table>
+
+
+
+
+			</div>
+			<div class="modal-footer">
+
+				<button class="btn btn-default" data-dismiss="modal"   aria-hidden="true">Close</button>
+				<button type="button" class="btn btn-default" title="save"   data-dismiss="modal"   aria-hidden="true"  ng-click="asySave(entity.filename,entity.yyname,entity.filename2)"><i class="fa fa-trash-o"></i> Save</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+</body>
+
+</html>

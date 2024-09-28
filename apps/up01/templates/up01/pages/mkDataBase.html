@@ -1,0 +1,406 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{% load static %}
+
+<head>
+	<meta charset="UTF-8">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+
+	<title>File Management</title>
+    <link href="{% static '/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/style.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/AdminLTE.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/_all-skins.min.css' %}"  rel="stylesheet" type="text/css" />
+
+    <script src="{% static '/js/jquery-2.2.3.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+	<script type="text/javascript" src="{% static '/js/pagination.js' %}"></script>
+
+
+	<link rel="stylesheet" href="{% static '/js/pagination.css' %}">
+
+
+
+
+
+	<script type="text/javascript">
+
+		var legou=angular.module("uy",['pagination']);
+ 		legou.controller("MkDataBaseController",function ($scope,$http) {
+
+
+
+            $scope.paginationConf = {
+                // page
+                currentPage: 1,
+                // total
+                totalItems: 10,
+                // per data
+                itemsPerPage: 10,
+
+                perPageOptions: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
+
+                onChange: function(){
+                     $scope.findAllDataBases();
+                }
+            };
+
+            $scope.doCopy = function(info){
+
+			    $http.get("/get_client_ip/"+info).success(function (resp) {
+					//把对象赋值给entity的对象
+
+
+					   console.log("logooo:",resp)
+
+                       var lopo=''
+                    if (resp.myip == resp.mydomain)
+                    {
+                        lopo = myip
+
+                    }
+                    else {
+                       lopo = resp.mydomain
+
+                    }
+
+                document.getElementById('selectCopy').value = lopo;
+                document.getElementById('selectCopy').select();
+                var tag = document.execCommand("Copy");
+                if(tag){
+                alert("copy successfully: "+lopo)
+
+                }
+
+                })
+               }
+
+
+
+
+			 $scope.save=function () {
+
+				 var textStr=$scope.entity.baseName;
+				 var judgeFn = new RegExp(/\s+/g);
+				 if (judgeFn.test(textStr)) {
+
+
+					 $scope.entity=[];
+					 return;
+				 }
+				 if (typeof textStr === 'undefined') {
+
+
+					 $scope.entity=[];
+					 return;
+				 }
+
+				 if (/.*[\u4e00-\u9fa5]+.*$/.test(textStr)) {
+
+					 $scope.entity=[];
+					 return;
+				 }
+
+
+
+
+
+				 var method="save";
+
+
+				 if($scope.entity.yuanName!=null){
+
+
+
+					 method="update";
+
+				 }
+
+
+
+
+			$http.post("/MkDataBase"+method+"/",$scope.entity).success(function (resp) {
+
+ 					 console.log(resp.msg);
+
+ 				     $scope.entity=[];
+				     $scope.findAllDataBases();
+
+
+
+                 })
+
+            }
+
+
+
+
+			$scope.findOne=function (id) {
+
+
+
+			    $http.get("/FindOne/"+id).success(function (resp) {
+
+
+					    $scope.entity =resp;
+
+                })
+
+
+            }
+
+
+            $scope.DelDataClick=function (baseName){
+                 location.href='/FindAllData/'+baseName
+            }
+
+
+			$scope.selectIds=[];
+
+			$scope.updateSelection=function (e,id) {
+
+				if(e.target.checked){
+
+					$scope.selectIds.push(id);
+
+				}else {
+
+                    var index = getArrayIndex($scope.selectIds,id);
+
+
+					$scope.selectIds.splice(index,1);
+
+
+				}
+
+
+            }
+
+
+            $scope.findAllDataBases=function (){
+
+				$http.get("/findAllDataBases/"+$scope.paginationConf.currentPage+"/"+$scope.paginationConf.itemsPerPage).success(function (resp) {
+
+
+					$scope.paginationConf.totalItems = resp.total;
+ 					$scope.listsss = resp.data;
+
+
+				})
+
+
+			}
+
+
+            $scope.dele=function () {
+
+				if ($scope.selectIds.length==0){
+
+
+					alert("Choose at least one");
+					return;
+				}
+
+
+				if(window.confirm("Are you sure you want to delete?")) {
+
+                    $http.get("/delData/"+$scope.selectIds).success(function (resp) {
+
+                            $scope.findAllDataBases();
+
+                            $scope.selectIds=[];
+
+                    })
+
+                }
+            }
+
+            function getArrayIndex(arr,obj) {
+                for (var i in arr){
+
+                    if (arr[i]==obj){
+                        return i;
+                    }
+                }
+            }
+
+            $scope.clickAll = function(e){
+
+                if(e.target.checked==true){
+
+                    var checkOnes=document.getElementsByName("checkOnes");
+                    $scope.selectIds=[];
+
+                    for (var i=0;i<checkOnes.length;i++){
+
+                        if(checkOnes[i].checked==false){
+                            $scope.selectIds.push(checkOnes[i].value);
+                            checkOnes[i].checked=true;
+                        }else {
+                            var index2=getArrayIndex($scope.selectIds,checkOnes[i].value)
+                            // var index2=$scope.selectIds.indexOf();
+                            $scope.selectIds.splice(index2,1);
+                            checkOnes[i].checked=false;
+                        }
+
+                    }
+
+                }else{
+                    var checkOnes=document.getElementsByName("checkOnes");
+
+                    for (var i=0;i<checkOnes.length;i++){
+
+                        if (checkOnes[i].checked==true){
+
+                            checkOnes[i].checked=false
+                            var index =getArrayIndex($scope.selectIds,checkOnes[i].value);
+                            $scope.selectIds.splice(index,1)
+                        }else {
+                            $scope.selectIds.push(checkOnes[i].value);
+                            checkOnes[i].checked=true;
+                        }
+
+
+                    }
+
+                }
+            };
+
+
+
+
+        })
+
+
+
+	</script>
+
+
+    <style type="text/css">
+        .page-list .pagination {float:left;}
+.page-list .pagination span {cursor: pointer;}
+.page-list .pagination .separate span{cursor: default; border-top:none;border-bottom:none;}
+.page-list .pagination .separate span:hover {background: none;}
+.page-list .page-total {float:left; margin: 25px 20px;}
+.page-list .page-total input, .page-list .page-total select{height: 26px; border: 1px solid #ddd;}
+.page-list .page-total input {width: 40px; padding-left:3px;}
+.page-list .page-total select {width: 50px;}
+    </style>
+
+</head>
+<body  class="hold-transition skin-red sidebar-mini" ng-app="uy" ng-controller="MkDataBaseController" ng-init="findAllDataBases()">
+  					<!-- .box-body -->
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Folder Management</h3>
+                    </div>
+
+                    <div class="box-body">
+
+
+                        <div class="table-box">
+
+
+                            <div class="pull-left">
+                                <div class="form-group form-inline">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-default" title="Create File" ng-click="entity={}" data-toggle="modal" data-target="#editModal" ><i class="fa fa-file-o"></i> Create Folder</button>
+                                        <button type="button" class="btn btn-default" ng-click="dele()" title="Remove" ><i class="fa fa-trash-o"></i> Remove</button>
+                                        <button type="button" class="btn btn-default" title="Reload" onclick="window.location.reload();"><i class="fa fa-refresh"></i> Reload</button>
+
+
+
+
+									</div>
+                                </div>
+                            </div>
+
+
+
+			                  <table id="dataList" class="table table-bordered table-striped table-hover dataTable">
+			                      <thead>
+			                          <tr>
+			                              <th class="" style="padding-right:0px">
+			                                  <input id="selall" type="checkbox" class="icheckbox_square-blue" ng-click="clickAll($event)" >
+			                              </th> 
+
+									      <th class="sorting">Folder Name</th>
+									      <th class="sorting">UserName</th>
+ 									      <th class="sorting">Password</th>
+ 									      <th class="sorting">Watch Folder </th>
+ 					                      <th class="text-center">Handle</th>
+			                          </tr>
+			                      </thead>
+			                      <tbody>
+			                          <tr ng-repeat="database in listsss">
+			                              <td>
+
+		 <input ng-click="updateSelection($event,database.baseName)" modify="{{database.baseName}}" name="checkOnes" ng-value="database.baseName"  type="checkbox" ng-checked="selectIds.includes(database.baseName)">
+
+										  </td>
+
+		                                  <td ng-bind="database.baseName"></td>
+		                                  <td ng-bind="database.rootName"></td>
+		                                  <td ng-bind="database.password"></td>
+										  <td>
+
+ 												 		 <input ng-click="DelDataClick(database.baseName)" modify="{{database.baseName}}" name="checkOnes02" value="Enter in"  type="button" >
+
+
+
+        <input type="text" name="selectCopy" id="selectCopy" ng-model="copyvalue"   style="position: absolute;left:-100px;bottom:-100px">
+        <button ng-click="doCopy(database.baseName);">Copy Link</button>
+										  </td>
+										  <td class="text-center">
+		                                 	  <button type="button" class="btn bg-olive btn-xs" ng-click="findOne(database.baseName)" data-toggle="modal" data-target="#editModal"  >Edit</button>
+		                                  </td>
+			                          </tr>
+			                      </tbody>
+			                  </table>
+
+ 							  <tm-pagination conf="paginationConf"/>
+
+						</div>
+
+
+                     </div>
+
+         
+
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog" >
+	<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<h3 id="myModalLabel">Folder Editing</h3>
+
+			<h3  style="font-size:16px;color: red">The folder name cannot be the same or have empty characters. If there are, this folder will not be created or modified by default!</h3>
+		</div>
+		<div class="modal-body">		
+			<table class="table table-bordered table-striped"  width="800px">
+		      	<tr>
+		      		<td>Folder Name</td>
+		      		<td><input  class="form-control"    ng-model="entity.baseName" placeholder="Folder Name" >  </td>
+		      	</tr>
+				<tr>
+					<td>User Name</td>
+					<td><input  class="form-control" ng-model="entity.rootName" placeholder="User Name" >  </td>
+				</tr>
+				<tr>
+					<td>Password</td>
+					<td><input  class="form-control" ng-model="entity.password" type="password" placeholder="Password" >  </td>
+				</tr>
+
+			 </table>				
+		</div>
+		<div class="modal-footer">						
+			<button class="btn btn-success" data-dismiss="modal" ng-click="save()" aria-hidden="true">Save</button>
+			<button class="btn btn-default" data-dismiss="modal" aria-hidden="true">Close</button>
+		</div>
+	  </div>
+	</div>
+</div>
+   
+</body>
+</html>

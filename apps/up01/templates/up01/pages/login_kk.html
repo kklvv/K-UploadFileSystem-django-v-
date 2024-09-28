@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+{% load static %}
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+	<title>KawsarDB</title>
+	
+    <link rel="stylesheet" type="text/css" href=" {% static 'js/webbase.css' %}" />
+    <link rel="stylesheet" type="text/css" href=" {% static 'js/pages-login-manage.css' %}" />
+	<script type="text/javascript" src="{% static 'js/angular.min.js' %}"></script>
+
+	<style>
+
+loginmanage {
+    height: 500px;
+    width: 1920px;
+    background: url({% static 'images/'%});
+    vertical-align: middle;
+    display: table-cell;
+}
+
+	</style>
+	<script type="text/javascript">
+
+		var app = angular.module("login",[]);
+ 		app.controller("loginContent",function($scope,$http){
+
+		        var dataName=$("#nameVal").val()
+
+			$scope.user={};
+			$scope.tips="Current Folder: "+dataName;
+
+
+
+			$scope.denglu=function (){
+
+
+				if ($scope.user.username ==null || $scope.user.username=="" || $scope.user.username==undefined ){
+
+
+					$scope.tips="The username cannot be empty ！"
+					return;
+				}
+				if ($scope.user.password ==null || $scope.user.password=="" || $scope.user.password==undefined ){
+					$scope.tips="he password cannot be empty ！"
+
+
+					return;
+				}
+
+
+
+		        var dataName=$("#nameVal").val()
+
+				$http.get("/login_kk/"+$scope.user.username+"/"+$scope.user.password+"/"+dataName).success(function(resp){
+
+
+
+					if(resp.state){
+
+						window.location.href="/admin/"+dataName
+
+
+					}else{
+
+						$scope.tips="username or password incorrect ！"
+
+
+					}
+				});
+
+			}
+
+
+
+		});
+
+	</script>
+
+
+
+</head>
+
+<body ng-app="login" ng-controller="loginContent">
+	<input id="nameVal" type="hidden" value="{{ DataName }}">
+	<div class="loginmanage">
+		<div class="py-container">
+			<h4 class="manage-title" style="text-align: center">Kawsar File System</h4>
+			<div class="loginform">
+
+				<ul class="sui-nav nav-tabs tab-wraped">
+					<li>
+
+
+						<a href="#"  >
+							<h3  ng-bind="tips"> </h3>
+						</a>
+					</li>
+					<li class="active">
+						<a href="#profile" data-toggle="tab">
+							<h3>Login</h3>
+						</a>
+					</li>
+				</ul>
+				<div class="tab-content tab-wraped">
+					<div id="index" class="tab-pane">
+
+					</div>
+					<div id="profile" class="tab-pane  active">
+						<form class="sui-form" >
+							<div class="input-prepend"><span class="add-on loginname"></span>
+								<input id="prependedInput" ng-model="user.username" name="username" type="text" placeholder="username" class="span2 input-xfat">
+							</div>
+							<div class="input-prepend"><span class="add-on loginpwd"></span>
+								<input id="prependedInputPwd" ng-model="user.password" name="password" type="password" placeholder="password" class="span2 input-xfat">
+							</div>
+
+							<div class="logined">
+								<button ng-click="denglu()" class="sui-btn btn-block btn-xlarge btn-danger">Login</button>
+							</div>
+						</form>
+
+					</div>
+
+
+				</div>
+			</div>
+			<div class="clearfix"></div>
+		</div>
+	</div>
+
+
+		<!--foot-->
+	<div class="py-container copyright">
+		<ul>
+			<li>about me</li>
+			<li>contact</li>
+
+		</ul>
+		<div class="address">welcome To Kawsar File System</div>
+		<div class="beian">
+		</div>
+	</div>
+
+
+<script type="text/javascript" src="{% static 'js/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/sui.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jquery.placeholder.min.js' %}"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+{% load static %}
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Kawsar File System</title>
+    <link href="{% static '/css/bootstrap.min.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/style.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/AdminLTE.css' %}" rel="stylesheet" type="text/css" />
+    <link href="{% static '/css/_all-skins.min.css' %}"  rel="stylesheet" type="text/css" />
+
+    <script src="{% static '/js/jquery-2.2.3.min.js' %}"></script>
+    <script src="{% static '/js/bootstrap.min.js' %}"></script>
+
+
+
+    <script src="{% static '/js/app.min.js' %}"></script>
+
+    <!--引入angularJS-->
+    <script type="text/javascript" src="{% static '/js/angular.min.js' %}"></script>
+
+    <script src="{% static '/js/base.js' %}"></script>
+    <script src="{% static '/js/indexController.js' %}"></script>
+
+    <script type="text/javascript">
+
+		 function SetIFrameHeight(){
+		  	  var iframeid=document.getElementById("iframe"); //iframe id
+		  	  if (document.getElementById){
+		  		iframeid.height =document.documentElement.clientHeight;			   	   
+			  }
+		 }
+	</script>
+
+
+
+
+
+ 
+</head>
+
+<body class="hold-transition skin-green sidebar-mini" ng-app="kdb" ng-controller="indexController" ng-init="findAllDataBases()">
+
+    <div class="wrapper">
+
+         <header class="main-header">
+            <!-- Logo -->
+             <a href="/home/" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini"><b></b></span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg" style="text-align: left"><b>Kawsar File System</b></span>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="offcanvas" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+                        
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="{% static '/images/avatar5.png' %}" class="user-image" alt="User Image">
+                                <span class="hidden-xs" ng-bind="loginname"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <img src="{% static '/images/avatar5.png' %}" class="img-circle" alt="User Image">
+
+                                    <p>
+                                        {{loginname}}
+                                        <small>online</small>
+                                    </p>
+                                </li>
+                                
+                                <!-- Menu Footer-->
+                                <li class="user-footer">
+                                    <!--<div class="pull-left">
+                                        <a href="#" class="btn btn-default btn-flat">修改密码</a>
+                                    </div>-->
+                                    <div class="text-center">
+                                        <a href="/logout/" class="btn btn-default btn-flat">LogOut</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+            </nav>
+        </header>
+        <!-- header /-->
+
+        <!-- menu -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <div class="user-panel">
+                    <div class="pull-left image">
+                        <img src="{% static '/images/avatar5.png' %}" class="img-circle" alt="User Image">
+                    </div>
+                    <div class="pull-left info">
+                        <p>{{loginname}}</p>
+                        <a href="#"><i class="fa fa-circle text-success"></i>online</a>
+                    </div>
+                </div>
+              
+                <!-- /.search form -->
+
+
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu"  >
+                    <li class="header">welcome To Kawsar File System</li>
+
+<!--                    <a th:href="@{/mkDataBase}" target="iframe"><i class="fa fa-dashboard"></i> <span>创建数据库</span></a>-->
+
+                    <li class="treeview">
+                        <a href="#">
+                            <i class="fa fa-folder"></i>
+                            <span>My System</span>
+                            <span class="pull-right-container">
+				       			<i class="fa fa-angle-left pull-right"></i>
+				   		 	</span>
+                        </a>
+                        <ul class="treeview-menu " >
+
+                            <li id="admin-login">
+                                <a href="/MakeDataP/" target="iframe">
+                                    <i class="fa fa-circle-o"></i>My Folder
+                                </a>
+                            </li>
+
+
+                        </ul>
+                    </li>
+
+
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <div class="content-wrapper">
+			<iframe width="100%" id="iframe" name="iframe"	onload="SetIFrameHeight()" 
+					frameborder="0" src="/MakeDataP/"></iframe>
+ 
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>
